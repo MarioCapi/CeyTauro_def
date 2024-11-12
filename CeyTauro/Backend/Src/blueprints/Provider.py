@@ -12,12 +12,14 @@ CORS(app)
 @provider_bp.route('/api/providers_read', methods=['GET'])
 @provider_bp.route('/api/providers_read/<int:id>', methods=['GET'])
 def read_provider(id=None):
-    if id is not None:
-        result = execute_procedure('sp_read_proveedor', (None,id))
-    else:
-        result = execute_procedure_read('sp_read_proveedor', ())
-    return jsonify({"message":result}), 200
-    
+    try:
+        if id is not None:          
+            result = execute_procedure('sp_read_proveedor', (None,id))
+        else:
+            result = execute_procedure_read('sp_read_proveedor', ())
+        return jsonify({"message":result}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400   
 
 
 

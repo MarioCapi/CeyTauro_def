@@ -14,7 +14,8 @@ $$;
 
 -- leer usuario
 CREATE OR REPLACE PROCEDURE "Management".sp_read_usuario(
-    p_id_usuario INT DEFAULT NULL
+	OUT p_resultado JSON,
+    IN p_id_usuario INT DEFAULT NULL
 )
 LANGUAGE plpgsql
 AS $$
