@@ -18,9 +18,9 @@ def execute_procedure(proc_name, params=None):
             with conn.cursor() as cursor:
                 if params:                    
                     param_placeholders = ','.join(['%s'] * len(params))
-                    cursor.execute(f'CALL "Management"."{proc_name}"({param_placeholders})', params)
+                    cursor.execute(f'CALL "management"."{proc_name}"({param_placeholders})', params)
                 else:
-                     cursor.execute(f'CALL "Management"."{proc_name}"()')
+                     cursor.execute(f'CALL "management"."{proc_name}"()')
 
                 result = cursor.fetchone()[0] if cursor.description else None                
         conn.commit()
@@ -39,9 +39,9 @@ def execute_procedure_read(proc_name, params=None):
             with conn.cursor() as cursor:
                 if params:
                     param_placeholders = ','.join(['%s'] * len(params)) + ', %s'
-                    cursor.execute(f'CALL "Management"."{proc_name}"({param_placeholders})', (*params, None))
+                    cursor.execute(f'CALL "management"."{proc_name}"({param_placeholders})', (*params, None))
                 else:
-                    cursor.execute(f'CALL "Management"."{proc_name}"(%s)', (None,))                    
+                    cursor.execute(f'CALL "management"."{proc_name}"(%s)', (None,))                    
 
                 result = cursor.fetchone()[0] if cursor.description else None
                 
