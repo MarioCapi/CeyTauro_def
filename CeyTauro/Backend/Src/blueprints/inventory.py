@@ -23,8 +23,12 @@ def read_inventory(id):
 def create_inventory():
     data = request.json
     _userAPI_rest = "apiRest_User"
-    result = execute_procedure_read('insertar_inventario', (data['nombre'], data['precio'], data['unidad'],_userAPI_rest))
+    result = execute_procedure_read('insertar_inventario', (data['nombre'],int(data['cantidad']),data['unidad_medida'],data['fecha_ingreso'],
+                                                            data['proveedor'],int(data['precio_compra']),data['ubicacion'],data['notas']))
+                                                            
     return jsonify({'message': result}), 200
+
+
 
 
 @cross_origin
@@ -32,10 +36,15 @@ def create_inventory():
 def inventory_update():
     data = request.json    
     try:
-        execute_procedure_read('actualizar_inventario', (int(data['id']), str(data['nombre']), str(data['unidad']), int(data['precio'])))
+        result = execute_procedure_read('actualizar_inventario', (int(data['id']),data['nombre'],int(data['cantidad']),data['unidad_medida'],data['fecha_ingreso'],
+                                                                    data['proveedor'],int(data['precio_compra']),data['ubicacion'],data['notas']))        
         return jsonify({'message': 'Producto actualizado exitosamente'})
     except Exception as e:
         return jsonify({'error': 'Error actualizando el producto'}), 500
+    
+    
+    
+    
 
 @cross_origin
 @invetory_bp.route('/api/inventory_delete/<int:id>', methods=['DELETE'])
