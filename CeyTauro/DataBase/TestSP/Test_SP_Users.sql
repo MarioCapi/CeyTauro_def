@@ -7,24 +7,22 @@ END $$;
 
 -- test para leer usuarios
 DO $$
+DECLARE
+    resultado JSON; -- Variable para almacenar el resultado del procedimiento
 BEGIN
-    -- Llamada al procedimiento para buscar un usuario específico por ID
-    RAISE NOTICE '--- Buscando usuario con ID 1 ---';
-    CALL "Management".sp_read_usuario(1);  -- Cambia el 1 por el id que deseas buscar
+    -- Prueba 1: Leer un usuario específico que existe
+    RAISE NOTICE 'Prueba 1: Leer usuario con ID 1';
+    CALL "Management".sp_read_usuario(resultado, 1);
+    RAISE NOTICE 'Resultado: %', resultado;
 
-    -- Llamada al procedimiento sin parámetro para mostrar todos los usuarios
-    RAISE NOTICE '--- Mostrando todos los usuarios ---';
-    CALL "Management".sp_read_usuario();   -- Llama sin argumento para obtener todos
-END $$;
+    -- Prueba 2: Leer un usuario específico que no existe
+    RAISE NOTICE 'Prueba 2: Leer usuario con ID inexistente (ID 99999)';
+    CALL "Management".sp_read_usuario(resultado, 99999);
+    RAISE NOTICE 'Resultado: %', resultado;
 
--- test para actualizar usuario
-DO $$
-BEGIN
-    CALL "Management".sp_update_usuario(1, 'alonso', '999999', 'nuevo_correo@ejemplo.com');
-END $$;
-
--- test para eliminar un usuario
-DO $$
-BEGIN
-    CALL "Management".sp_delete_usuario(1);
-END $$;
+    -- Prueba 3: Leer todos los usuarios
+    RAISE NOTICE 'Prueba 3: Leer todos los usuarios';
+    CALL "Management".sp_read_usuario(resultado, NULL);
+    RAISE NOTICE 'Resultado: %', resultado;
+END;
+$$;

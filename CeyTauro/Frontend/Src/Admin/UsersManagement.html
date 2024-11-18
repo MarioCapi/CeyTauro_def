@@ -88,47 +88,57 @@
     function delUser(id) {
       return axios.delete(`${API_URL_Delete}/${id}`);
     }    
-        function verUsuarios() {
-            fetch('http://127.0.0.1:5000/api/usuarios/api/users_read/999999999')
-                .then(response => response.json())
-                .then(data => {
-                  showUsers(data.message);
-                })
-                .catch(error => {
-                    console.error('Error al obtener los usuarios:', error);
-                });
-        }        
-        function showUsers(users) 
-        {            
-            userTable.innerHTML = '';            
-            users.forEach(usuario => 
-            {
-                let row = document.createElement('tr');                
-                let idCell = document.createElement('td');
-                idCell.textContent = usuario.id;
-                row.appendChild(idCell);
-                let usernameCell = document.createElement('td');
-                usernameCell.textContent = usuario.username;
-                row.appendChild(usernameCell);
-                let emailCell = document.createElement('td');
-                emailCell.textContent = usuario.email;
-                row.appendChild(emailCell);                                         
-                let passwordCell = document.createElement('td');
-                passwordCell.innerHTML = `
-                <span class="password-mask">**********</span>
-                <input type="hidden" value="${usuario.password}" class="password-real" />
-                `;
-                row.appendChild(passwordCell);
-                let actionsCell = document.createElement('td');
-                actionsCell.innerHTML = `
-                <button class="btn btn-edit" onclick="editUser(${usuario.id})">Editar</button>
-                <button class="btn btn-save hidden" onclick="saveUser(${usuario.id})">Guardar</button>
-                <button class="btn btn-Delete hidden" onclick="delUser(${usuario.id})">Eliminar</button>
-                `;  
-                row.appendChild(actionsCell);
-                usersBody.appendChild(row);
-            });
-          }
+    
+    function verUsuarios() {
+    fetch(API_URL_Read)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Error al obtener los usuarios: ${response.status} ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.message) {
+                showUsers(data.message);
+            } else {
+                console.error('Respuesta inesperada del servidor:', data);
+            }
+        })
+        .catch(error => {
+            console.error('Error en la solicitud fetch:', error);
+        });
+}
+
+function showUsers(users) {            
+    userTable.innerHTML = '';            
+    users.forEach(usuario => {
+        let row = document.createElement('tr');
+        let idCell = document.createElement('td');
+        idCell.textContent = usuario.id;  // Cambiar id_usuario a id
+        row.appendChild(idCell);
+        
+        let usernameCell = document.createElement('td');
+        usernameCell.textContent = usuario.username;
+        row.appendChild(usernameCell);
+        
+        let emailCell = document.createElement('td');
+        emailCell.textContent = usuario.email;
+        row.appendChild(emailCell);
+        
+        let passwordCell = document.createElement('td');
+        passwordCell.innerHTML = `<span class="password-mask">**********</span>`;
+        row.appendChild(passwordCell);
+        
+        let actionsCell = document.createElement('td');
+        actionsCell.innerHTML = `
+            <button class="btn btn-edit" onclick="editUser(${usuario.id})">Editar</button>
+            <button class="btn btn-save hidden" onclick="saveUser(${usuario.id})">Guardar</button>
+            <button class="btn btn-Delete hidden" onclick="delUser(${usuario.id})">Eliminar</button>
+        `;
+        row.appendChild(actionsCell);
+        usersBody.appendChild(row);
+    });
+}
     
     //function agregarUsuario() {
      // const fullName = document.
@@ -138,7 +148,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
   <script>
 
-    const API_URL = 'https://api.example.com/users';
+    const API_URL_Read = 'http://127.0.0.1:5000/api/usuarios/api/users_read';
     const API_URL_Create = 'http://127.0.0.1:5000/api/usuarios/api/users_create';
     const API_URL_Update = 'http://127.0.0.1:5000/api/usuarios/api/update_user';
     const API_URL_Delete = 'http://127.0.0.1:5000/api/usuarios/api/delete_user';
@@ -180,7 +190,7 @@
       cells[4].querySelector('.btn-delete').classList.remove('hidden');
     }
 
-    function delUser(id) 
+    /*function delUser(id) 
     {
       if (confirm('¿Estás seguro de que deseas eliminar este usuario?')) 
       {
@@ -194,7 +204,22 @@
                 alert('Hubo un error al intentar eliminar el usuario.');
             });            
       }verUsuarios()
+  }*/
+  function delUser(id) {
+  if (confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
+    axios.delete(`${API_URL_Delete}/${id}`)
+      .then(response => {
+        console.log('Usuario Eliminado:', response.data);
+        alert('Usuario eliminado exitosamente.');
+        location.reload(); // Refrescar la tabla
+      })
+      .catch(error => {
+        console.error('Error al eliminar el usuario:', error.response ? error.response.data : error.message);
+        alert('Hubo un error al intentar eliminar el usuario.');
+      });
   }
+}
+
     function saveUser(id)
     {
       const row = event.target.closest('tr');

@@ -14,41 +14,50 @@ $$;
 
 -- leer usuario
 CREATE OR REPLACE PROCEDURE "Management".sp_read_usuario(
-	OUT p_resultado JSON,
+    OUT p_resultado JSON,
     IN p_id_usuario INT DEFAULT NULL
 )
 LANGUAGE plpgsql
 AS $$
-DECLARE
-    v_id_usuario INT;
-    v_username VARCHAR(50);
-    v_email VARCHAR(100);
 BEGIN
     IF p_id_usuario IS NOT NULL THEN
         -- Buscar y mostrar el usuario con el id especificado
-        SELECT id_usuario, username, email
-        INTO v_id_usuario, v_username, v_email
-        FROM "Management".usuarios
-        WHERE id_usuario = p_id_usuario;
+        SELECT json_agg(row_to_json(t))
+        INTO p_resultado
+        FROM (
+            SELECT 
+                id_usuario, 
+                username, 
+                email 
+            FROM "Management".usuarios
+            WHERE id_usuario = p_id_usuario
+        ) t;
 
-        -- Mostrar el resultado si se encontró el usuario
-        IF v_id_usuario IS NOT NULL THEN
-            RAISE NOTICE 'ID: %, Username: %, Email: %', v_id_usuario, v_username, v_email;
-        ELSE
-            RAISE NOTICE 'No se encontró un usuario con el ID %', p_id_usuario;
+        -- Si no se encuentra ningún usuario, devuelve un JSON vacío
+        IF p_resultado IS NULL THEN
+            p_resultado := '[]'::JSON;
         END IF;
 
     ELSE
         -- Mostrar todos los usuarios si no se proporciona id
-        FOR v_id_usuario, v_username, v_email IN 
-            SELECT id_usuario, username, email 
+        SELECT json_agg(row_to_json(t))
+        INTO p_resultado
+        FROM (
+            SELECT 
+                id_usuario, 
+                username, 
+                email 
             FROM "Management".usuarios
-        LOOP
-            RAISE NOTICE 'ID: %, Username: %, Email: %', v_id_usuario, v_username, v_email;
-        END LOOP;
+        ) t;
+
+        -- Si no hay usuarios, devuelve un JSON vacío
+        IF p_resultado IS NULL THEN
+            p_resultado := '[]'::JSON;
+        END IF;
     END IF;
 END;
 $$;
+
 
 
 --actualizar usuario
@@ -76,10 +85,17 @@ CREATE OR REPLACE PROCEDURE "Management".sp_delete_usuario(
 LANGUAGE plpgsql
 AS $$
 BEGIN
+    -- Intenta eliminar el usuario con el ID especificado
     DELETE FROM "Management".usuarios
     WHERE id_usuario = p_id_usuario;
+
+    -- Verifica si la operación DELETE afectó alguna fila
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Usuario con ID % no encontrado.', p_id_usuario;
+    END IF;
 END;
 $$;
+
 
 
 
