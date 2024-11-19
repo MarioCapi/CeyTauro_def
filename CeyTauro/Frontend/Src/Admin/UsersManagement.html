@@ -22,8 +22,15 @@
     </tbody>   
     </table>
   </div>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
   <script>    
+    const API_URL_Read = 'http://127.0.0.1:5000/api/usuarios/api/users_read';
+    const API_URL_Create = 'http://127.0.0.1:5000/api/usuarios/api/users_create';
+    const API_URL_Update = 'http://127.0.0.1:5000/api/usuarios/api/update_user';
+    const API_URL_Delete = 'http://127.0.0.1:5000/api/usuarios/api/delete_user';
+    const userTable = document.getElementById('userTable').getElementsByTagName('tbody')[0];
+    const addUserBtn = document.getElementById('addUser');
+
 
   function saveNewUser() 
   {
@@ -143,18 +150,8 @@ function showUsers(users) {
     //function agregarUsuario() {
      // const fullName = document.
      document.addEventListener("DOMContentLoaded", verUsuarios());
-  </script>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
-  <script>
-
-    const API_URL_Read = 'http://127.0.0.1:5000/api/usuarios/api/users_read';
-    const API_URL_Create = 'http://127.0.0.1:5000/api/usuarios/api/users_create';
-    const API_URL_Update = 'http://127.0.0.1:5000/api/usuarios/api/update_user';
-    const API_URL_Delete = 'http://127.0.0.1:5000/api/usuarios/api/delete_user';
-    const userTable = document.getElementById('userTable').getElementsByTagName('tbody')[0];
-    const addUserBtn = document.getElementById('addUser');
-
+  
+ 
     addUserBtn.addEventListener('click', () => {
       let row = document.createElement('tr');          
       row.innerHTML = `
@@ -205,7 +202,7 @@ function showUsers(users) {
             });            
       }verUsuarios()
   }*/
-  function delUser(id) {
+    function delUser(id) {
   if (confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
     axios.delete(`${API_URL_Delete}/${id}`)
       .then(response => {
