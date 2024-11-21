@@ -1,12 +1,11 @@
 const API_URL_Read = 'http://127.0.0.1:5000/api/inventory/api/inventory_read/';
 const API_URL_Create = 'http://127.0.0.1:5000/api/inventory/api/inventory_create';
 const API_URL_Update = 'http://127.0.0.1:5000/api/inventory/api/inventory_update';
+const API_URL_Delete = 'http://127.0.0.1:5000/api/inventory/api/inventory_delete';
 let spices = JSON.parse(localStorage.getItem('spices')) || [];
-console.log('Spices cargadas desde localStorage:', spices); // Verifica si los datos son correctos
+//console.log('Spices cargadas desde localStorage:', spices); 
 let editingSpiceId = null; 
 
-
-            
 async function loadInventory(id) {
     try {
         const response = await fetch(API_URL_Read + id);
@@ -146,7 +145,7 @@ function editSpice(id) {
         document.getElementById('nombre_especia').value = spice.nombre_especia;
         document.getElementById('cantidad').value = spice.cantidad;
         document.getElementById('unidad_medida').value = spice.unidad_medida;
-        document.getElementById('fecha_ingreso').value = spice.fecha_ingreso ? spice.fecha_ingreso : ''; // Verificar si la fecha es válida
+        document.getElementById('fecha_ingreso').value = spice.fecha_ingreso ? spice.fecha_ingreso : ''; 
         document.getElementById('proveedor').value = spice.proveedor;
         document.getElementById('precio_compra').value = spice.precio_compra;
         document.getElementById('ubicacion').value = spice.ubicacion;
@@ -157,21 +156,29 @@ function editSpice(id) {
 
 
 // Función para eliminar especia
-function deleteSpice(id) {
+async function deleteSpice(id) {
     if (confirm('¿Está seguro de eliminar esta especia?')) {
-        spices = spices.filter(spice => spice.id !== id);
-        localStorage.setItem('spices', JSON.stringify(spices));
-        showNotification('Especia eliminada exitosamente');
+        try {
+            const response = await fetch(`${API_URL_Delete}/${id}`, {
+                method: 'DELETE',
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al eliminar la especia');
+            }
+            const result = await response.json();
+            // Actualizar la lista local de especias y el DOM
+            spices = spices.filter(spice => spice.id !== id);
+            localStorage.setItem('spices', JSON.stringify(spices));
+            loadInventory('999999999'); 
+            showNotification(result.mensaje || 'Especia eliminada exitosamente');
+        } catch (error) {
+            console.error('Error al eliminar la especia:', error);
+            showNotification('Error al eliminar la especia');
+        }
     }
 }
 
-
-        
-
-
-
-
-        
 
         // Función para mostrar notificaciones
         function showNotification(message) {
@@ -189,7 +196,6 @@ function deleteSpice(id) {
                 spice.nombre.toLowerCase().includes(searchTerm) ||
                 spice.proveedor.toLowerCase().includes(searchTerm)
             );
-            //updateSpiceList(filteredSpices);
         });
 
         document.addEventListener('DOMContentLoaded', () => {
