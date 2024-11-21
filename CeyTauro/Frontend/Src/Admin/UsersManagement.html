@@ -27,7 +27,6 @@
     const API_URL_Read = 'http://127.0.0.1:5000/api/usuarios/api/users_read/999999999';
     const API_URL_Create = 'http://127.0.0.1:5000/api/usuarios/api/users_create';
     const API_URL_Update = 'http://127.0.0.1:5000/api/usuarios/api/update_user';
-    /*const API_URL_Delete = 'http://127.0.0.1:5000/api/usuarios/api/delete_user';*/
     const API_URL_Delete = 'http://127.0.0.1:5000/api/usuarios/delete_user';
 
     const userTable = document.getElementById('userTable').getElementsByTagName('tbody')[0];
@@ -224,19 +223,24 @@ function showUsers(users) {
 
 function saveUser(id) {
     const row = event.target.closest('tr');
-    const cells = row.cells;      
-    const passwordInput = cells[3].querySelector('input');
+    const cells = row.cells;
 
+    // Obtener valores de las celdas
     const updatedUser = {
         id: id,
         username: cells[1].textContent.trim(),
         email: cells[2].textContent.trim(),
-        password: passwordInput ? passwordInput.value.trim() : ''
+        password: cells[3].querySelector('input') ? cells[3].querySelector('input').value.trim() : ''
     };
 
-    console.log('Datos enviados al servidor:', updatedUser);
+    // Validar campos obligatorios
+    if (!updatedUser.username || !updatedUser.email || !updatedUser.password) {
+        alert('Todos los campos son obligatorios');
+        return;
+    }
 
-    axios.put(`${API_URL_Update}/${id}`, updatedUser, {
+    // Enviar solicitud PUT
+    axios.put('http://127.0.0.1:5000/api/usuarios/api/update_user', updatedUser, {
         headers: {
             'Content-Type': 'application/json'
         }
@@ -264,11 +268,9 @@ function saveUser(id) {
     })
     .catch(error => {
         console.error('Error al actualizar el usuario:', error.response ? error.response.data : error.message);
-        alert('Hubo un error al intentar actualizar el usuario.');
+        alert('Hubo un error al intentar actualizar el usuario: ' + (error.response ? error.response.data.error : error.message));
     });
-}
-
-  
+} 
     addUserBtn.addEventListener('click', () => {
       const newUser = {
         id: exampleUsers.length + 1,
