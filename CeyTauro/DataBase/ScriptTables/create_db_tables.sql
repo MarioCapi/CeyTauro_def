@@ -18,3 +18,13 @@ nombre_producto VARCHAR(255) NOT NULL,
 descripcion TEXT, unidad_medida VARCHAR(50),
 precio_unitario DECIMAL(10, 2));
 
+CREATE TABLE management.clientes (
+    id SERIAL PRIMARY KEY,
+    nombre_razonsocial VARCHAR(200) NOT NULL,
+    numero_identificacion VARCHAR(50) UNIQUE NOT NULL,
+    correo_electronico VARCHAR(100) UNIQUE NOT NULL,
+    telefono VARCHAR(20),
+    direccion_envio TEXT,
+    direccion_facturacion TEXT,
+    fecha_creacion TIMESTAMP DEFAULT NOW()
+);
