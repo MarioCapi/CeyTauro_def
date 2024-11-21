@@ -32,3 +32,35 @@ BEGIN
 END;
 $$;
 
+--test para actualizar usuarios 
+DO $$
+BEGIN
+    -- Llama al procedimiento con valores de prueba
+    CALL "management".sp_update_usuario(
+        p_id_usuario := 2,
+        p_username := 'nuevo_usuario',
+        p_password := 'nueva_contraseña',
+        p_email := 'nuevo_email@example.com'
+    );
+
+    -- Opcional: puedes agregar un SELECT para verificar los cambios
+    RAISE NOTICE 'Actualización completada. Verifique los datos.';
+END;
+$$;
+
+--test para eliminar usuario
+DO $$
+BEGIN
+    -- Llama al procedimiento con un ID existente para probar la eliminación
+    CALL "management".sp_delete_usuario(2);
+    RAISE NOTICE 'Usuario con ID 1 eliminado correctamente.';
+
+    -- Llama al procedimiento con un ID inexistente para probar el manejo de errores
+    BEGIN
+        CALL "management".sp_delete_usuario(99999);
+    EXCEPTION
+        WHEN OTHERS THEN
+            RAISE NOTICE 'Error esperado: %', SQLERRM;
+    END;
+END;
+$$;
