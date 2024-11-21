@@ -69,6 +69,7 @@ $$;
 
 
 
+
 -- Procedimiento para actualizar un producto
 CREATE OR REPLACE PROCEDURE "Management".sp_update_producto(
     IN p_producto_id INT,

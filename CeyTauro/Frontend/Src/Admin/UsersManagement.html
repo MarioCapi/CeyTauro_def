@@ -24,10 +24,12 @@
   </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
   <script>    
-    const API_URL_Read = 'http://127.0.0.1:5000/api/usuarios/api/users_read';
+    const API_URL_Read = 'http://127.0.0.1:5000/api/usuarios/api/users_read/999999999';
     const API_URL_Create = 'http://127.0.0.1:5000/api/usuarios/api/users_create';
     const API_URL_Update = 'http://127.0.0.1:5000/api/usuarios/api/update_user';
-    const API_URL_Delete = 'http://127.0.0.1:5000/api/usuarios/api/delete_user';
+    /*const API_URL_Delete = 'http://127.0.0.1:5000/api/usuarios/api/delete_user';*/
+    const API_URL_Delete = 'http://127.0.0.1:5000/api/usuarios/delete_user';
+
     const userTable = document.getElementById('userTable').getElementsByTagName('tbody')[0];
     const addUserBtn = document.getElementById('addUser');
 
@@ -120,8 +122,9 @@ function showUsers(users) {
     userTable.innerHTML = '';            
     users.forEach(usuario => {
         let row = document.createElement('tr');
+        
         let idCell = document.createElement('td');
-        idCell.textContent = usuario.id;  // Cambiar id_usuario a id
+        idCell.textContent = usuario.id_usuario; // Asegúrate de usar el nombre correcto del campo
         row.appendChild(idCell);
         
         let usernameCell = document.createElement('td');
@@ -132,20 +135,27 @@ function showUsers(users) {
         emailCell.textContent = usuario.email;
         row.appendChild(emailCell);
         
+        // Crear la celda de contraseña
         let passwordCell = document.createElement('td');
-        passwordCell.innerHTML = `<span class="password-mask">**********</span>`;
+        passwordCell.innerHTML = `
+            <span class="password-mask">**********</span>
+            <input type="hidden" class="password-real" value="${usuario.password}" />
+        `;
         row.appendChild(passwordCell);
         
         let actionsCell = document.createElement('td');
         actionsCell.innerHTML = `
-            <button class="btn btn-edit" onclick="editUser(${usuario.id})">Editar</button>
-            <button class="btn btn-save hidden" onclick="saveUser(${usuario.id})">Guardar</button>
-            <button class="btn btn-Delete hidden" onclick="delUser(${usuario.id})">Eliminar</button>
+            <button class="btn btn-edit" onclick="editUser(${usuario.id_usuario})">Editar</button>
+            <button class="btn btn-save hidden" onclick="saveUser(${usuario.id_usuario})">Guardar</button>
+            <button class="btn btn-Delete hidden" onclick="delUser(${usuario.id_usuario})">Eliminar</button>
         `;
         row.appendChild(actionsCell);
+
         usersBody.appendChild(row);
     });
 }
+
+
     
     //function agregarUsuario() {
      // const fullName = document.
@@ -169,91 +179,96 @@ function showUsers(users) {
       addUserBtn.disabled = true;
   });
 
-    function editUser(id) {
-      const row = event.target.closest('tr');
-      const cells = row.cells;
-      const passwordCell = row.cells[3];
-      cells[0].contentEditable = true;
-      cells[1].contentEditable = true;
-      cells[2].contentEditable = true;      
-      const passwordRealInput = passwordCell.querySelector('.password-real');
-      passwordCell.innerHTML = `<input type="text" value="${passwordRealInput.value}" />`;
-      cells[0].classList.add('editable');
-      cells[1].classList.add('editable');
-      cells[2].classList.add('editable');
-      cells[3].classList.add('editable');
-      cells[4].querySelector('.btn-edit').classList.add('hidden');
-      cells[4].querySelector('.btn-save').classList.remove('hidden');
-      cells[4].querySelector('.btn-delete').classList.remove('hidden');
-    }
-
-    /*function delUser(id) 
-    {
-      if (confirm('¿Estás seguro de que deseas eliminar este usuario?')) 
-      {
-        axios.delete(`${API_URL_Delete}/${id}`)
+  function editUser(id) {
+  const row = event.target.closest('tr');
+  const cells = row.cells;
+  const passwordCell = row.cells[3];
+  
+  // Verificar si existe .password-real, o tomar contenido actual
+  const passwordRealInput = passwordCell.querySelector('.password-real');
+  const passwordValue = passwordRealInput ? passwordRealInput.value : '********';
+  
+  // Reemplazar contenido de la celda con un input
+  passwordCell.innerHTML = `<input type="text" value="${passwordValue}" />`;
+  
+  cells[0].contentEditable = true;
+  cells[1].contentEditable = true;
+  cells[2].contentEditable = true;
+  cells[0].classList.add('editable');
+  cells[1].classList.add('editable');
+  cells[2].classList.add('editable');
+  cells[3].classList.add('editable');
+  
+  // Ocultar botón editar, mostrar guardar y eliminar
+  const actionsCell = cells[4];
+  actionsCell.querySelector('.btn-edit').classList.add('hidden');
+  actionsCell.querySelector('.btn-save').classList.remove('hidden');
+  actionsCell.querySelector('.btn-delete').classList.remove('hidden');
+}
+  function delUser(id) {
+    if (confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
+      axios.delete(`${API_URL_Delete}/${id}`)
             .then(response => {
-                console.log('Usuario Eliminado:', response.data);
+                console.log('Usuario eliminado:', response.data);
                 alert('Usuario eliminado exitosamente.');
+                location.reload(); // Actualiza la lista de usuarios
             })
             .catch(error => {
-                console.error('Error al eliminar el usuario:', error);
-                alert('Hubo un error al intentar eliminar el usuario.');
-            });            
-      }verUsuarios()
-  }*/
-    function delUser(id) {
-  if (confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
-    axios.delete(`${API_URL_Delete}/${id}`)
-      .then(response => {
-        console.log('Usuario Eliminado:', response.data);
-        alert('Usuario eliminado exitosamente.');
-        location.reload(); // Refrescar la tabla
-      })
-      .catch(error => {
-        console.error('Error al eliminar el usuario:', error.response ? error.response.data : error.message);
-        alert('Hubo un error al intentar eliminar el usuario.');
-      });
-  }
+                const errorMsg = error.response ? error.response.data.error : error.message;
+                console.error('Error al eliminar el usuario:', errorMsg);
+                alert('Error al eliminar el usuario: ' + errorMsg);
+            });
+    }
 }
 
-    function saveUser(id)
-    {
-      const row = event.target.closest('tr');
-      const cells = row.cells;      
-      const passwordInput = cells[3].querySelector('input');
-      const updatedUser = {
+
+function saveUser(id) {
+    const row = event.target.closest('tr');
+    const cells = row.cells;      
+    const passwordInput = cells[3].querySelector('input');
+
+    const updatedUser = {
         id: id,
-        fullName: cells[1].textContent,
-        email: cells[2].textContent,
-        password: passwordInput.value        
-      };
-      cells[3].innerHTML = `
-        <span class="password-mask">**********</span>
-        <input type="hidden" value="${updatedUser.password}" class="password-real" />
-    `;      
-      axios.put(API_URL_Update, updatedUser)
-        .then(response => {
-      console.log('Usuario actualizado:', response.data);
-      cells[0].contentEditable = false;
-      cells[1].contentEditable = false;
-      cells[2].contentEditable = false;
-      cells[3].innerHTML = '********'; // Ocultar la contraseña nuevamente
-      cells[0].classList.remove('editable');
-      cells[1].classList.remove('editable');
-      cells[2].classList.remove('editable');
-      cells[3].classList.remove('editable');
-      cells[4].querySelector('.btn-edit').classList.remove('hidden');
-      cells[4].querySelector('.btn-save').classList.add('hidden');      
-      cells[4].querySelector('.btn-delete').classList.add('hidden');      
-      alert('Usuario actualizado exitosamente.');
+        username: cells[1].textContent.trim(),
+        email: cells[2].textContent.trim(),
+        password: passwordInput ? passwordInput.value.trim() : ''
+    };
+
+    console.log('Datos enviados al servidor:', updatedUser);
+
+    axios.put(`${API_URL_Update}/${id}`, updatedUser, {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        console.log('Usuario actualizado:', response.data);
+
+        // Ajustar la fila después de guardar
+        cells[0].contentEditable = false;
+        cells[1].contentEditable = false;
+        cells[2].contentEditable = false;
+        cells[3].innerHTML = `
+            <span class="password-mask">**********</span>
+            <input type="hidden" value="${updatedUser.password}" class="password-real" />
+        `;
+        cells[0].classList.remove('editable');
+        cells[1].classList.remove('editable');
+        cells[2].classList.remove('editable');
+        cells[3].classList.remove('editable');
+        cells[4].querySelector('.btn-edit').classList.remove('hidden');
+        cells[4].querySelector('.btn-save').classList.add('hidden');
+        cells[4].querySelector('.btn-delete').classList.add('hidden');
+
+        alert('Usuario actualizado exitosamente.');
     })
     .catch(error => {
-      console.error('Error al actualizar el usuario:', error);
-      alert('Hubo un error al intentar actualizar el usuario.');
+        console.error('Error al actualizar el usuario:', error.response ? error.response.data : error.message);
+        alert('Hubo un error al intentar actualizar el usuario.');
     });
-    verUsuarios()
-  }    
+}
+
+  
     addUserBtn.addEventListener('click', () => {
       const newUser = {
         id: exampleUsers.length + 1,

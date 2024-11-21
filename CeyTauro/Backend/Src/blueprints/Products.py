@@ -10,9 +10,11 @@ CORS(app)
 @cross_origin
 @products_bp.route('/api/products_read/<int:id>', methods=['GET'])
 def read_producto(id):
-    result = execute_procedure_read('sp_read_producto', (id,))
-    return jsonify({"message":result}), 200
-
+    try:
+        result = execute_procedure_read('sp_read_producto', (id,))
+        return jsonify({"message":result}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 @cross_origin
 @products_bp.route('/api/products_create', methods=['POST'])

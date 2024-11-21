@@ -8,25 +8,13 @@ app = Flask(__name__)
 CORS(app)
 
 @cross_origin
-@usuarios_bp.route('/api/users_read', methods=['GET'])
 @usuarios_bp.route('/api/users_read/<int:id>', methods=['GET'])
-def read_usuario(id=None):    
+def read_usuario(id):
     try:
-        if id is not None:          
-            # Pasa 'None' para p_resultado, que será llenado en el procedimiento
-            result = execute_procedure('sp_read_usuario', (None, id))
-        else:
-            # Si no se pasa el id, se pasa 'None' para usar el valor por defecto
-            result = execute_procedure_read('sp_read_usuario', ())
-        
-        # El resultado es un JSON, así que lo retornamos
-        return jsonify({"message": result}), 200
-    
+        result = execute_procedure_read('sp_read_usuario', (id,))
+        return jsonify({"message":result}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
-
-
-
 
 @cross_origin
 @usuarios_bp.route('/api/users_create', methods=['POST'])
@@ -49,15 +37,16 @@ def update_usuario():
         return jsonify({'message': 'Usuario actualizado exitosamente'})
     except Exception as e:
         return jsonify({"error": str(e)}), 400
-
+   
 @cross_origin
-@usuarios_bp.route('/api/delete_user/<int:id>', methods=['DELETE'])
+@usuarios_bp.route('/delete_user/<int:id>', methods=['DELETE'])
 def delete_usuario(id):
     try:
         execute_procedure('sp_delete_usuario', (id,))
-        return jsonify({'message': 'Usuario eliminado exitosamente'})
+        return jsonify({'message': 'Usuario eliminado exitosamente'}), 200
     except Exception as e:
-        return jsonify({"error": str(e)}), 400
+        return jsonify({"error": f"No se pudo eliminar el usuario: {str(e)}"}), 400
+
     
 #if __name__ == '__main__':
 #    app.run(debug=True)

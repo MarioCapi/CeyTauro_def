@@ -4,7 +4,7 @@ CREATE DATABASE "CeyTauro def";
 CREATE SCHEMA "Management";
 
 --crear tablas
-CREATE TABLE "Management".usuarios (
+CREATE TABLE "management".usuarios (
     id_usuario SERIAL PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(100) NOT NULL,

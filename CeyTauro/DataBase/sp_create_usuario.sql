@@ -1,5 +1,5 @@
 -- crear usuario
-CREATE OR REPLACE PROCEDURE "Management".sp_create_usuario(
+CREATE OR REPLACE PROCEDURE "management".sp_create_usuario(
     p_username VARCHAR(50),
     p_password VARCHAR(100),
     p_email VARCHAR(100)
@@ -7,52 +7,48 @@ CREATE OR REPLACE PROCEDURE "Management".sp_create_usuario(
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    INSERT INTO "Management".usuarios (username, password, email)
+    INSERT INTO "management".usuarios (username, password, email)
     VALUES (p_username, p_password, p_email);
 END;
 $$;
 
 -- leer usuario
-CREATE OR REPLACE PROCEDURE "Management".sp_read_usuario(
-    OUT p_resultado JSON,
-    IN p_id_usuario INT DEFAULT NULL
+CREATE OR REPLACE PROCEDURE "management".sp_read_usuario(
+    IN p_usuario_id INT,
+    OUT result JSON
 )
 LANGUAGE plpgsql
 AS $$
+DECLARE
+    usuario_record JSON;
 BEGIN
-    IF p_id_usuario IS NOT NULL THEN
-        -- Buscar y mostrar el usuario con el id especificado
-        SELECT json_agg(row_to_json(t))
-        INTO p_resultado
-        FROM (
-            SELECT 
-                id_usuario, 
-                username, 
-                email 
-            FROM "Management".usuarios
-            WHERE id_usuario = p_id_usuario
-        ) t;
+    -- Si se proporciona un ID de usuario específico
+    IF p_usuario_id <> 999999999 THEN
+        SELECT row_to_json(u) INTO usuario_record
+        FROM "management".usuarios u
+        WHERE id_usuario = p_usuario_id;
 
-        -- Si no se encuentra ningún usuario, devuelve un JSON vacío
-        IF p_resultado IS NULL THEN
-            p_resultado := '[]'::JSON;
+        -- Si no se encuentra un usuario con el ID proporcionado
+        IF usuario_record IS NULL THEN
+            result := json_build_object('mensaje', 'No se encontraron registros para ese ID');
+        ELSE
+            result := usuario_record;
         END IF;
 
+    -- Si no se proporciona un ID o se pasa el valor especial para todos los usuarios
     ELSE
-        -- Mostrar todos los usuarios si no se proporciona id
-        SELECT json_agg(row_to_json(t))
-        INTO p_resultado
+        SELECT json_agg(row_to_json(u)) INTO usuario_record
         FROM (
-            SELECT 
-                id_usuario, 
-                username, 
-                email 
-            FROM "Management".usuarios
-        ) t;
+            SELECT id_usuario, username, email
+            FROM "management".usuarios
+            ORDER BY id_usuario
+        ) AS u;
 
-        -- Si no hay usuarios, devuelve un JSON vacío
-        IF p_resultado IS NULL THEN
-            p_resultado := '[]'::JSON;
+        -- Si no hay registros en la tabla
+        IF usuario_record IS NULL OR usuario_record::TEXT = '[]' THEN
+            result := json_build_object('mensaje', 'No se encontraron registros.');
+        ELSE
+            result := usuario_record;
         END IF;
     END IF;
 END;
@@ -61,7 +57,7 @@ $$;
 
 
 --actualizar usuario
-CREATE OR REPLACE PROCEDURE "Management".sp_update_usuario(
+CREATE OR REPLACE PROCEDURE "management".sp_update_usuario(
     p_id_usuario INT,
     p_username VARCHAR(50),
     p_password VARCHAR(100),
@@ -70,7 +66,7 @@ CREATE OR REPLACE PROCEDURE "Management".sp_update_usuario(
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    UPDATE "Management".usuarios
+    UPDATE "management".usuarios
     SET username = p_username,
         password = p_password,
         email = p_email
@@ -79,14 +75,14 @@ END;
 $$;
 
 --eliminar usuario
-CREATE OR REPLACE PROCEDURE "Management".sp_delete_usuario(
+CREATE OR REPLACE PROCEDURE "management".sp_delete_usuario(
     p_id_usuario INT
 )
 LANGUAGE plpgsql
 AS $$
 BEGIN
     -- Intenta eliminar el usuario con el ID especificado
-    DELETE FROM "Management".usuarios
+    DELETE FROM "management".usuarios
     WHERE id_usuario = p_id_usuario;
 
     -- Verifica si la operación DELETE afectó alguna fila
