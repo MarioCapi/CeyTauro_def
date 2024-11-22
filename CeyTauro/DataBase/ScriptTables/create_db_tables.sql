@@ -28,3 +28,24 @@ CREATE TABLE management.clientes (
     direccion_facturacion TEXT,
     fecha_creacion TIMESTAMP DEFAULT NOW()
 );
+
+CREATE TABLE management.ventas (
+    id_venta 			SERIAL PRIMARY KEY, 
+	consecutivo_factura	bigint NOT NULL,
+    id_cliente 			INT NOT NULL,
+    id_producto 		INT NOT NULL,
+    cantidad 			INT NOT NULL CHECK (cantidad > 0),
+	total 				DECIMAL(15, 2),
+    fecha_venta TIMESTAMP DEFAULT NOW(),
+	
+    
+    CONSTRAINT fk_cliente FOREIGN KEY (id_cliente) 
+        REFERENCES management.clientes (id) 
+        ON DELETE RESTRICT ON UPDATE CASCADE,
+    
+    CONSTRAINT fk_producto FOREIGN KEY (id_producto) 
+        REFERENCES management.productos (id_producto) 
+        ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+
