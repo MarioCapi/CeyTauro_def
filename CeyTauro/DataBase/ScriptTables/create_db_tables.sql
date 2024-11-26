@@ -43,18 +43,21 @@ CREATE TABLE IF NOT EXISTS management.inventario
     notas text COLLATE pg_catalog."default"    
 )
 
+
 CREATE TABLE management.ventas (
-    id_venta 			SERIAL PRIMARY KEY, 
-	consecutivo_factura	bigint NOT NULL,
-    id_cliente 			INT NOT NULL,
-    id_producto 		INT NOT NULL,
-    cantidad 			INT NOT NULL CHECK (cantidad > 0),
-	total 				DECIMAL(15, 2),
-    fecha_venta TIMESTAMP DEFAULT NOW(),
+    id_venta 				SERIAL PRIMARY KEY, 
+	consecutivo_factura		bigint NOT NULL,    
+	numero_identi_cliente	VARCHAR(20),
+    id_producto 			INT NOT NULL,
+    cantidad 				INT NOT NULL CHECK (cantidad > 0),
+	total 					DECIMAL(15, 2),
+    estado              	VARCHAR(20),
+    estado_formapago    	VARCHAR(20),
+    fecha_venta 			TIMESTAMP DEFAULT NOW(),
 	
     
-    CONSTRAINT fk_cliente FOREIGN KEY (id_cliente) 
-        REFERENCES management.clientes (id) 
+    CONSTRAINT fk_cliente FOREIGN KEY (numero_identi_cliente) 
+        REFERENCES management.clientes (numero_identificacion) 
         ON DELETE RESTRICT ON UPDATE CASCADE,
     
     CONSTRAINT fk_producto FOREIGN KEY (id_producto) 

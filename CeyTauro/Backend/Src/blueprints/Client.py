@@ -2,14 +2,12 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/..')
 
-from flask import Flask, request, jsonify, render_template
-from flask_cors import CORS, cross_origin
+from flask import request, jsonify, render_template
+from flask_cors import  cross_origin
 from flask import Blueprint, request, jsonify
 from blueprints.execProcedure import execute_procedure_read
 
 client_bp = Blueprint('client', __name__)
-app = Flask(__name__)
-CORS(app)
 
 @cross_origin
 @client_bp.route('/api/client_read/<int:id>', methods=['GET'])
