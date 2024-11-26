@@ -32,7 +32,7 @@ CREATE TABLE management.clientes (
 -- Table: management.inventario-- DROP TABLE IF EXISTS management.inventario;
 CREATE TABLE IF NOT EXISTS management.inventario
 (
-    id integer NOT NULL DEFAULT nextval('management.inventario_id_seq'::regclass),
+    id serial primary key,
     nombre_especia character varying(50) COLLATE pg_catalog."default" NOT NULL,
     cantidad integer NOT NULL,
     unidad_medida character varying(50) COLLATE pg_catalog."default" NOT NULL,
@@ -40,15 +40,8 @@ CREATE TABLE IF NOT EXISTS management.inventario
     proveedor character varying(100) COLLATE pg_catalog."default",
     precio_compra numeric(10,2),
     ubicacion character varying(100) COLLATE pg_catalog."default",
-    notas text COLLATE pg_catalog."default",
-    CONSTRAINT inventario_pkey PRIMARY KEY (id)
+    notas text COLLATE pg_catalog."default"    
 )
-TABLESPACE pg_default;
-ALTER TABLE IF EXISTS management.inventario
-    OWNER to postgres;
-
-
-
 
 CREATE TABLE management.ventas (
     id_venta 			SERIAL PRIMARY KEY, 
