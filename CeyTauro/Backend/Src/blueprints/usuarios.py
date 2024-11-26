@@ -1,12 +1,15 @@
-from flask import Flask, request, jsonify, render_template
-from flask_cors import CORS, cross_origin
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/..')
+
+
+from flask import request, jsonify, render_template
+from flask_cors import cross_origin
 from flask import Blueprint, request, jsonify
 from blueprints.execProcedure import execute_procedure, execute_procedure_read
 import bcrypt
 
 usuarios_bp = Blueprint('usuarios', __name__)
-app = Flask(__name__)
-CORS(app)
 
 @cross_origin
 @usuarios_bp.route('/api/users_read/<int:id>', methods=['GET'])
@@ -72,7 +75,3 @@ def delete_usuario(id):
         return jsonify({'message': 'Usuario eliminado exitosamente'}), 200
     except Exception as e:
         return jsonify({"error": f"No se pudo eliminar el usuario: {str(e)}"}), 400
-
-    
-#if __name__ == '__main__':
-#    app.run(debug=True)

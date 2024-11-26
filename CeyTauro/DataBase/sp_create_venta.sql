@@ -1,6 +1,8 @@
 CREATE OR REPLACE PROCEDURE management.crear_venta(
-    consecutivo_factura BIGINT,
-    numero_identi_cliente VARCHAR,
+    consecutivo_factura     BIGINT,
+    numero_identi_cliente   VARCHAR,
+    estado                  VARCHAR,
+    formapago               VARCHAR,
     productos_json JSON,
     OUT resultado JSON
 )
@@ -49,17 +51,16 @@ BEGIN
 
                 IF NOT FOUND THEN
                     RAISE EXCEPTION 'El producto con ID % no existe.', id_producto_get;
-                END IF;
-
-                -- Calcular el total
-                total := precio_unitario_get * cantidad;                
-
+                END IF;                
+                total := precio_unitario_get * cantidad;
                 -- Insertar la venta en la tabla                
                 INSERT INTO management.ventas (
                     consecutivo_factura,
                     numero_identi_cliente,
                     id_producto,
                     cantidad,
+					estado,
+					estado_formapago,
                     total,
                     fecha_venta
                 )
@@ -68,11 +69,11 @@ BEGIN
                     numero_identi_cliente,
                     id_producto_get,
                     cantidad,
+					estado,
+					formapago,
                     total,
                     NOW()
                 );
-                
-                -- Agregar mensaje de éxito
                 mensajes := mensajes || jsonb_build_object(
                     'id_producto', id_producto_get,
                     'cantidad', cantidad,
