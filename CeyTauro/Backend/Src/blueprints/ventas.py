@@ -28,50 +28,30 @@ def create_ventas():
 def read_ventas():
     try:    
         data = request.get_json() or {}
-        # Alternativamente, permite parámetros en la URL como query strings
         fecha_inicio = data.get('fecha_inicio') or request.args.get('fecha_inicio')
         fecha_final = data.get('fecha_final') or request.args.get('fecha_final')
         numero_identificacion = data.get('numero_identificacion') or request.args.get('numero_identificacion')
         codeproducto = data.get('codeproducto') or request.args.get('codeproducto')
         consecutivo_factura = data.get('consecutivo_factura') or request.args.get('consecutivo_factura')
-        
-        params = (
-            fecha_inicio,
-            fecha_final,
-            numero_identificacion,
-            int(codeproducto) if codeproducto else None,
-            int(consecutivo_factura) if consecutivo_factura else None
-        )
+        params = (fecha_inicio,fecha_final,numero_identificacion,
+            int(codeproducto) if codeproducto else None,int(consecutivo_factura) if consecutivo_factura else None)
         result = execute_procedure_funct_read('get_sales_report', params)
-
         return jsonify({"status": "success", "data": result}), 200
     except Exception as e:
         return jsonify({'error': 'Error al leer las ventas', 'error':str(e)}), 500
 
-'''
+
 @cross_origin
-@ventas_bp.route('/api/inventory_update', methods=['PUT'])
+@ventas_bp.route('/api/ventas_update', methods=['PUT'])
 def inventory_update():
     data = request.json    
     try:
-        result = execute_procedure_read('actualizar_inventario', (int(data['id']),data['nombre'],int(data['cantidad']),data['unidad_medida'],data['fecha_ingreso'],
-                                                                    data['proveedor'],int(data['precio_compra']),data['ubicacion'],data['notas']))        
-        return jsonify({'message': 'Producto actualizado exitosamente'})
+        data = request.get_json() or {}
+        p_id_venta = data.get('id_venta') or request.args.get('id_venta')
+        p_estado_formapago = data.get('estado_formapago') or request.args.get('estado_formapago')
+        p_estado = data.get('estado') or request.args.get('estado')
+        params = (p_id_venta,p_estado_formapago,p_estado)
+        result = execute_procedure_funct_read('actualizar_estado_venta', params)        
+        return jsonify({"status": "success", "data": result}), 200
     except Exception as e:
-        return jsonify({'error': 'Error actualizando el producto'}), 500
-    
-    
-    
-    
-
-@cross_origin
-@ventas_bp.route('/api/inventory_delete/<int:id>', methods=['DELETE'])
-def delete_inventory(id):
-    try:
-        execute_procedure_read('eliminar_inventario', (id,))
-        return jsonify({'message': "Producto Eliminado"})
-    except Exception as e:
-        return jsonify({'message': "Error Eliminando Producto Eliminado"}), 500
-    
-    
-'''
+        return jsonify({'error': 'Error al actualizar ventas', 'error':str(e)}), 500
