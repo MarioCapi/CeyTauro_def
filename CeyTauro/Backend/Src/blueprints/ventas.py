@@ -5,7 +5,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/..')
 from flask import request, jsonify
 from flask_cors import cross_origin
 from flask import Blueprint, request, jsonify
-from blueprints.execProcedure import execute_procedure_read
+from blueprints.execProcedure import execute_procedure_read, execute_procedure_funct_read
 
 
 ventas_bp = Blueprint('ventas', __name__)
@@ -23,14 +23,32 @@ def create_ventas():
     except Exception as e:
         return jsonify({'message': 'Error creando venta','error':str(e)}),500
 
-'''
 @cross_origin
-@ventas_bp.route('/api/inventory_read/<int:id>', methods=['GET'])
-def read_inventory(id):
-    result = execute_procedure_read('obtener_inventario', (id,))
-    return jsonify({"message":result}), 200
+@ventas_bp.route('/api/ventas_read', methods=['POST'])
+def read_ventas():
+    try:    
+        data = request.get_json() or {}
+        # Alternativamente, permite parámetros en la URL como query strings
+        fecha_inicio = data.get('fecha_inicio') or request.args.get('fecha_inicio')
+        fecha_final = data.get('fecha_final') or request.args.get('fecha_final')
+        numero_identificacion = data.get('numero_identificacion') or request.args.get('numero_identificacion')
+        codeproducto = data.get('codeproducto') or request.args.get('codeproducto')
+        consecutivo_factura = data.get('consecutivo_factura') or request.args.get('consecutivo_factura')
+        
+        params = (
+            fecha_inicio,
+            fecha_final,
+            numero_identificacion,
+            int(codeproducto) if codeproducto else None,
+            int(consecutivo_factura) if consecutivo_factura else None
+        )
+        result = execute_procedure_funct_read('get_sales_report', params)
 
+        return jsonify({"status": "success", "data": result}), 200
+    except Exception as e:
+        return jsonify({'error': 'Error al leer las ventas', 'error':str(e)}), 500
 
+'''
 @cross_origin
 @ventas_bp.route('/api/inventory_update', methods=['PUT'])
 def inventory_update():
