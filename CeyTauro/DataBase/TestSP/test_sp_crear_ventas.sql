@@ -26,3 +26,11 @@ $$;
         {"id_producto": 2, "cantidad": 1}
     ]
 }
+
+
+--POSTMAN --http://127.0.0.1:5000/api/ventas/api/ventas_update 
+{
+    "id_venta": 1,
+    "estado_formapago": "PagoAPI",
+    "estado": "ProcesadoAPI"
+}
