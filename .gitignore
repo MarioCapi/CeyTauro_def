@@ -16,6 +16,9 @@ __pycache__
 # Ignorar carpeta myvenv
 myvenv
 
+# Ignorar carpeta myvenv
+.venv
+
 # Ignorar carpeta venv
 venv
 
@@ -26,3 +29,4 @@ venv
 .env
 # Ignorar archivos configuración SASS
 .sass-cache
+

@@ -1,7 +1,7 @@
 --Crear base de datos
-CREATE DATABASE "CeyTauro def";
+CREATE DATABASE "CeyTauro";
 --crear equema "Management"
-CREATE SCHEMA "Management";
+CREATE SCHEMA "management";
 
 --crear tablas
 CREATE TABLE "management".usuarios (
@@ -11,7 +11,7 @@ CREATE TABLE "management".usuarios (
     email VARCHAR(100) NOT NULL UNIQUE
 );
 
-CREATE TABLE "Management".productos 
+CREATE TABLE "management".productos 
 (id_producto SERIAL PRIMARY KEY,
 codeProducto INT NOT NULL UNIQUE,
 nombre_producto VARCHAR(255) NOT NULL,
@@ -65,4 +65,13 @@ CREATE TABLE management.ventas (
         ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
+CREATE TABLE "management".proveedores (
+    id_proveedor SERIAL PRIMARY KEY,            
+    nit_proveedor BIGINT NOT NULL UNIQUE,       
+    nombre_contacto VARCHAR(255) NOT NULL,      
+    razon_social VARCHAR(255) NOT NULL,         
+    telefono_contacto VARCHAR(50),             
+    direccion VARCHAR(255),                    
+    correo_electronico VARCHAR(255)            
+);
 
