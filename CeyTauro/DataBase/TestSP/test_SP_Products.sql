@@ -69,10 +69,6 @@ GET: http://127.0.0.1:5000/api/products/api/products_read
 
 
 
-
-
-
-
 DO $$
 DECLARE
 	v_id varchar := '001';  
