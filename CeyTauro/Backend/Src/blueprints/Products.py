@@ -1,7 +1,7 @@
 from flask import request, jsonify, render_template
 from flask_cors import  cross_origin
 from flask import Blueprint, request, jsonify
-from blueprints.execProcedure import execute_procedure, execute_procedure_read
+from blueprints.execProcedure import execute_procedure_funct_read, execute_procedure, execute_procedure_read
 
 products_bp = Blueprint('products', __name__)
 

@@ -1,7 +1,7 @@
 --Crear base de datos
-CREATE DATABASE "CeyTauro def";
+CREATE DATABASE "CeyTauro";
 --crear equema "Management"
-CREATE SCHEMA "Management";
+CREATE SCHEMA "management";
 
 --crear tablas
 CREATE TABLE "management".usuarios (
@@ -11,7 +11,7 @@ CREATE TABLE "management".usuarios (
     email VARCHAR(100) NOT NULL UNIQUE
 );
 
-CREATE TABLE "Management".productos 
+CREATE TABLE "management".productos 
 (id_producto SERIAL PRIMARY KEY,
 codeProducto INT NOT NULL UNIQUE,
 nombre_producto VARCHAR(255) NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE management.clientes (
 -- Table: management.inventario-- DROP TABLE IF EXISTS management.inventario;
 CREATE TABLE IF NOT EXISTS management.inventario
 (
-    id integer NOT NULL DEFAULT nextval('management.inventario_id_seq'::regclass),
+    id serial primary key,
     nombre_especia character varying(50) COLLATE pg_catalog."default" NOT NULL,
     cantidad integer NOT NULL,
     unidad_medida character varying(50) COLLATE pg_catalog."default" NOT NULL,
@@ -40,15 +40,8 @@ CREATE TABLE IF NOT EXISTS management.inventario
     proveedor character varying(100) COLLATE pg_catalog."default",
     precio_compra numeric(10,2),
     ubicacion character varying(100) COLLATE pg_catalog."default",
-    notas text COLLATE pg_catalog."default",
-    CONSTRAINT inventario_pkey PRIMARY KEY (id)
+    notas text COLLATE pg_catalog."default"    
 )
-TABLESPACE pg_default;
-ALTER TABLE IF EXISTS management.inventario
-    OWNER to postgres;
-
-
-
 
 
 CREATE TABLE management.ventas (
@@ -72,4 +65,13 @@ CREATE TABLE management.ventas (
         ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
+CREATE TABLE "management".proveedores (
+    id_proveedor SERIAL PRIMARY KEY,            
+    nit_proveedor BIGINT NOT NULL UNIQUE,       
+    nombre_contacto VARCHAR(255) NOT NULL,      
+    razon_social VARCHAR(255) NOT NULL,         
+    telefono_contacto VARCHAR(50),             
+    direccion VARCHAR(255),                    
+    correo_electronico VARCHAR(255)            
+);
 

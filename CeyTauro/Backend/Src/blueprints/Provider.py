@@ -36,20 +36,34 @@ def create_provider():
 @provider_bp.route('/api/provider_update', methods=['PUT'])
 def provider_update():
     data = request.json    
-    try:
-        result = execute_procedure_read('sp_update_proveedor', (int(data['id']), int(data['nit']), str(data['nombre']), str(data['razon']), str(data['tel']),str(data['email']),str(data['direccion'])))
+    try:        
+        result = execute_procedure_read(
+            'sp_update_proveedor',
+            (
+                int(data['nit']), 
+                str(data['nombre']),
+                str(data['razon']),
+                str(data['tel']),
+                str(data['direccion']),
+                str(data['email'])
+            )
+        )
         return jsonify({'message': result}), 200
     except Exception as e:
-        return jsonify({'message': result}), 500
+        return jsonify({'error': f"Error actualizando el proveedor: {str(e)}"}), 500
+
 
 @cross_origin
-@provider_bp.route('/api/providers_delete/<string:id>', methods=['DELETE'])
-def delete_provider(id):
+@provider_bp.route('/api/providers_delete/<string:nit>', methods=['DELETE'])
+def delete_provider(nit):
     try:
-        result = execute_procedure_read('sp_delete_proveedor',(str(id),))
-        return jsonify({'message': result}), 200
-    except Exception as e:
-        return jsonify({'message': result}), 400
+        result = execute_procedure_read('sp_delete_proveedor', (nit,))
+        if result:
+            return jsonify({'message': result}), 200
+        else:
+            return jsonify({'error': 'No se recibió respuesta del procedimiento almacenado'}), 500
+    except Exception as e:        
+        return jsonify({'error': f"Error al eliminar el proveedor: {str(e)}"}), 400
 
 
 

@@ -18,6 +18,7 @@ BEGIN
     		VALUES (
                     P_CODE_PRODUCT, p_nombre_producto, precio, unidad
                     )        
+
         mensaje := 'Producto insertado exitosamente.';
     EXCEPTION        
         WHEN OTHERS THEN
@@ -72,7 +73,7 @@ $$;
 
 
 -- Procedimiento para actualizar un producto
-CREATE OR REPLACE PROCEDURE "Management".sp_update_producto(
+CREATE OR REPLACE PROCEDURE "management".sp_update_producto(
     IN p_producto_id INT,
     IN p_nombre_producto VARCHAR,
 	IN p_unidad_producto VARCHAR,
@@ -81,7 +82,7 @@ CREATE OR REPLACE PROCEDURE "Management".sp_update_producto(
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    UPDATE "Management".productos
+    UPDATE "management".productos
     SET nombre_producto = p_nombre_producto,
 		precio_unitario = p_precio_producto,
 		unidad_medida = p_unidad_producto
@@ -105,8 +106,7 @@ AS $$
 DECLARE
     v_old_record RECORD;
 BEGIN    
-      
-    DELETE FROM "Management".productos WHERE id_producto = p_producto_id;    
+    DELETE FROM "Management".productos WHERE id_producto = p_producto_id;
     RAISE NOTICE 'Producto con id % eliminado exitosamente.', p_producto_id;
 EXCEPTION
     WHEN OTHERS THEN        

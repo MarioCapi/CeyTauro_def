@@ -1,7 +1,7 @@
 const API_URL_Read = 'http://127.0.0.1:5000/api/providers/api/providers_read';
 const API_URL_Create  = 'http://127.0.0.1:5000/api/providers/providers_create';
 const API_URL_Delete  = 'http://127.0.0.1:5000/api/providers/api/providers_delete';
-const API_URL_Update = 'http://127.0.0.1:5000/api/providers/api/providers_update';
+const API_URL_Update = 'http://127.0.0.1:5000/api/providers/api/provider_update';
 
 
 
@@ -81,67 +81,38 @@ async function createProvider(provider) {
     }
 }
 
-// Llamada a la API para eliminar proveedores
-/*function deleteProvider(provider) {
-    try {
-        if (confirm("¿Está seguro de que desea eliminar este Proveedor?")) {
-            fetch(`${API_URL_Delete}/${provider}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    alert('Error: ' + data.error);
-                } else {
-                    alert('Proveedor eliminado exitosamente');
-                    renderProviders(); // Recargar la lista de proveedores
-                }
-            })
-            .catch(error => console.error('Error al eliminar el Proveedor:', error));
-        }
-    }catch (error) {
-        console.error('Error en la solicitud de eliminacion:', error);
-        showError('Error en la solicitud de eliminacion');
-    }
-}*/
 
 async function deleteProvider(nit_proveedor) {
     try {
-        if (confirm("¿Está seguro de que desea eliminar este Proveedor?")) {
-            fetch(`${API_URL_Delete}/${nit_proveedor}`, {
+        if (confirm("¿Está seguro de que desea eliminar este proveedor?")) {
+            const response = await fetch(`${API_URL_Delete}/${nit_proveedor}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'
                 }
-            })
-            .then(response => {
-                // Verificar si la respuesta fue exitosa
-                if (!response.ok) {
-                    throw new Error(`Error en la solicitud: ${response.statusText}`);
-                }
-                return response.json(); // Intentar parsear el cuerpo solo si es JSON
-            })
-            .then(data => {
-                if (data && data.error) {
-                    alert('Error: ' + data.error);
-                } else {
-                    alert('Proveedor eliminado exitosamente');
-                    // Eliminar el proveedor de la lista local
-                    providers = providers.filter(provider => provider.nit_proveedor !== nit_proveedor);                                        
-                }
-            })
-            .catch(error => {
-                console.error('Error al eliminar el Proveedor:', error);
             });
+
+            if (!response.ok) {
+                throw new Error(`Error en la solicitud: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                alert('Proveedor eliminado exitosamente');
+                // Eliminar el proveedor de la lista local
+                providers = providers.filter(provider => provider.nit_proveedor !== nit_proveedor);
+                renderProviders(); // Actualizar la tabla
+            } else {
+                alert(`Error: ${data.message || 'No se pudo eliminar el proveedor'}`);
+            }
         }
     } catch (error) {
-        console.error('Error en la solicitud de eliminación:', error);        
+        console.error('Error al eliminar el proveedor:', error);
+        alert('Hubo un error al intentar eliminar el proveedor');
     }
-    await initializeApp();
 }
+
 
 
 
@@ -164,8 +135,8 @@ async function initializeApp() {
 
     pageProviders.forEach(provider => {
         const tr = document.createElement('tr');
-        tr.innerHTML = ` 
-            <td>${provider.id_proveedor}</td>           
+        tr.innerHTML = `
+            <td>${provider.id_proveedor}</td>
             <td>${provider.nombre_contacto}</td>
             <td>${provider.razon_social}</td>
             <td>${provider.nit_proveedor}</td>
@@ -173,12 +144,13 @@ async function initializeApp() {
             <td>${provider.correo_electronico}</td>
             <td>${provider.direccion}</td>
             <td>
-                <button onclick="editProduct(${provider.id_proveedor})">Editar</button>
+                <button class="btn edit-btn" onclick="editProvider(${provider.id_proveedor})">Editar</button>
                 <button class="btn delete-btn" onclick="deleteProvider(${provider.nit_proveedor})">Eliminar</button>
             </td>
         `;
         tbody.appendChild(tr);
     });
+    
     addDeleteListeners()
     
 }
@@ -203,8 +175,10 @@ function renderPagination(filteredProviders = providers) {
     }
 }
 
-document.getElementById('form').addEventListener('submit', async function(e) {
+document.getElementById('form').addEventListener('submit', async function (e) {
     e.preventDefault();
+
+    const idProveedor = document.getElementById('codeproveedor').value;
     const nombre = document.getElementById('providerName').value;
     const razon = document.getElementById('providerRazon').value;
     const nit = document.getElementById('ProviderNit_CC').value;
@@ -212,48 +186,43 @@ document.getElementById('form').addEventListener('submit', async function(e) {
     const email = document.getElementById('providerEmail').value;
     const direccion = document.getElementById('providerAddress').value;
 
-    const provider = { nit_proveedor: nit, nombre: nombre, razon: razon, telefono: tel, correo_electronico: email, direccion: direccion };
+    const provider = { nit: nit, nombre: nombre, razon: razon, tel: tel, email: email, direccion: direccion };
 
-    const newProvider = await createProvider(provider);
-    if (newProvider) {
-        providers.push(newProvider);
+    if (idProveedor) {
+        // Actualizar proveedor
+        const updatedProvider = await updateProvider(provider);
+        if (updatedProvider) {
+            const index = providers.findIndex(p => p.id_proveedor == idProveedor);
+            if (index !== -1) providers[index] = updatedProvider;
+        }
+    } else {
+        // Crear proveedor
+        const newProvider = await createProvider(provider);
+        if (newProvider) providers.push(newProvider);
     }
 
     this.reset();
     document.getElementById('codeproveedor').value = '';
+    document.getElementById('submitButton').textContent = 'Crear Proveedor';
     initializeApp();
 });
 
 
-/*function editProduct(id) {
+
+function editProvider(id) {
     const provider = providers.find(p => p.id_proveedor == id);
     document.getElementById('codeproveedor').value = provider.id_proveedor;
-    document.getElementById('providerName').value = provider.nombre_empresa;
+    document.getElementById('providerName').value = provider.nombre_contacto;
     document.getElementById('providerRazon').value = provider.razon_social;
     document.getElementById('ProviderNit_CC').value = provider.nit_proveedor;
     document.getElementById('ProviderTel').value = provider.telefono_contacto;
-    document.getElementById('providerEmail').value= provider.correo_electronico;
-    document.getElementById('providerAddress').value=provider.direccion;    
+    document.getElementById('providerEmail').value = provider.correo_electronico;
+    document.getElementById('providerAddress').value = provider.direccion;
+
+    // Cambiar el texto del botón para indicar que se está actualizando
+    document.getElementById('submitButton').textContent = 'Actualizar Proveedor';
 }
 
-function deleteProduct(id) {    
-    if (confirm('¿Estás seguro de que deseas eliminar este proveedor?')) {        
-        providers = providers.filter(p => p.codeproducto != id);        
-        axios.delete(`${API_URL_Delete}/${id}`)
-            .then(response => {
-                console.log('proveedor Eliminado:', response.data);
-                alert('proveedor eliminado exitosamente.');
-            })
-            .catch(error => {
-                console.error('Error al eliminar el proveedor:', error);
-                alert('Hubo un error al intentar eliminar el proveedor.');
-            });        
-        renderProviders();
-        renderPagination();
-    } else {        
-        console.log('Eliminación de proveedor cancelada por el usuario.');
-    }
-}*/
 
 document.getElementById('searchBar').addEventListener('input', function(e) {
     const searchTerm = e.target.value.toLowerCase();
