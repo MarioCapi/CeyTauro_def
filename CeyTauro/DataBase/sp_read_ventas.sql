@@ -2,7 +2,7 @@ CREATE OR REPLACE FUNCTION management.get_sales_report(
     p_fecha_inicio DATE DEFAULT NULL,
     p_fecha_final DATE DEFAULT NULL,
     p_numero_identificacion VARCHAR DEFAULT NULL,
-    p_codeproducto INT DEFAULT NULL,
+    p_codeproducto VARCHAR DEFAULT NULL,
     p_consecutivo_factura BIGINT DEFAULT NULL,
     OUT resultado JSON
 )
