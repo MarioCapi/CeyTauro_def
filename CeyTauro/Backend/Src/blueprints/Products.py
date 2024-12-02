@@ -5,6 +5,19 @@ from blueprints.execProcedure import execute_procedure_funct_read, execute_proce
 
 products_bp = Blueprint('products', __name__)
 
+
+@cross_origin
+@products_bp.route('/api/products_create', methods=['POST'])
+def create_product():
+    try:
+        data = request.json    
+        result = execute_procedure_read('sp_create_producto', (data['codeProducto'],data['nombre_producto'], 
+                                                                data['unidad_de_medida'], data['descripcion'],data['precio_unitario']))
+        return jsonify({'message': result}), 200
+    except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+
 @cross_origin
 @products_bp.route('/api/products_read/<int:id>', methods=['GET'])
 def read_producto(id):
@@ -13,14 +26,6 @@ def read_producto(id):
         return jsonify({"message":result}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
-
-@cross_origin
-@products_bp.route('/api/products_create', methods=['POST'])
-def create_product():
-    data = request.json
-    _userAPI_rest = "apiRest_User"
-    result = execute_procedure_read('sp_create_producto', (data['nombre'], data['precio'], data['unidad'],_userAPI_rest))
-    return jsonify({'message': result}), 200
 
 
 @cross_origin

@@ -11,12 +11,17 @@ CREATE TABLE "management".usuarios (
     email VARCHAR(100) NOT NULL UNIQUE
 );
 
-CREATE TABLE "management".productos 
+CREATE TABLE management.productos 
 (id_producto SERIAL PRIMARY KEY,
-codeProducto INT NOT NULL UNIQUE,
+codeProducto VARCHAR NOT NULL,
 nombre_producto VARCHAR(255) NOT NULL,
-descripcion TEXT, unidad_medida VARCHAR(50),
+unidad_de_medida VARCHAR(10) NOT NULL,
+descripcion TEXT, 
 precio_unitario DECIMAL(10, 2));
+ALTER TABLE management.productos
+ADD CONSTRAINT unique_codeProducto UNIQUE (codeProducto);
+
+
 
 CREATE TABLE management.clientes (
     id SERIAL PRIMARY KEY,
