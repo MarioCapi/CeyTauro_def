@@ -1,6 +1,7 @@
 -- Procedimiento para crear un producto
-CREATE OR REPLACE PROCEDURE "Management".sp_create_producto(
+CREATE OR REPLACE PROCEDURE "management".sp_create_producto(
     IN p_nombre_producto VARCHAR,
+    IN P_CODE_PRODUCT VARCAHAR,
     IN precio NUMERIC,
     IN unidad VARCHAR,
     IN usuario_modifica VARCHAR,
@@ -13,10 +14,10 @@ AS $$
 BEGIN    
     BEGIN
         usuario_modifica := current_user;
-		 INSERT INTO "Management".productos (codeProducto,nombre_producto, precio_unitario, unidad_medida)
-    		VALUES ((SELECT COALESCE(MAX(id_producto) + 1, 1) FROM "Management".productos),p_nombre_producto, precio, unidad)
-    		RETURNING id_producto INTO v_id_producto;
-        
+		 INSERT INTO "management".productos (codeProducto,nombre_producto, precio_unitario, unidad_medida)
+    		VALUES (
+                    P_CODE_PRODUCT, p_nombre_producto, precio, unidad
+                    )        
         mensaje := 'Producto insertado exitosamente.';
     EXCEPTION        
         WHEN OTHERS THEN
@@ -29,7 +30,7 @@ $$;
 
 
 -- Procedimiento para leer un producto por ID
-CREATE OR REPLACE PROCEDURE "Management".sp_read_producto(
+CREATE OR REPLACE PROCEDURE "management".sp_read_producto(
     IN p_producto_id INT,
     OUT result JSON
 )
@@ -40,7 +41,7 @@ DECLARE
 BEGIN
     IF p_producto_id <> 999999999 THEN
         SELECT row_to_json(p) INTO producto_record
-        FROM "Management".productos p
+        FROM "management".productos p
         WHERE code_producto = p_producto_id;
 
         IF producto_record IS NULL THEN
@@ -52,7 +53,7 @@ BEGIN
         SELECT json_agg(row_to_json(p)) INTO producto_record
         FROM (
             SELECT *
-            FROM "Management".productos
+            FROM "management".productos
             ORDER BY codeproducto
         ) AS p;	
         IF producto_record IS NULL OR producto_record::TEXT = '[]' THEN
@@ -96,7 +97,7 @@ $$;
 
 
 -- Procedimiento para eliminar un producto
-CREATE OR REPLACE PROCEDURE "Management".sp_delete_producto(
+CREATE OR REPLACE PROCEDURE "management".sp_delete_producto(
     IN p_producto_id INT
 )
 LANGUAGE plpgsql
@@ -104,13 +105,7 @@ AS $$
 DECLARE
     v_old_record RECORD;
 BEGIN    
-    SELECT * INTO v_old_record 
-    FROM "Management".productos
-    WHERE codeproducto = p_producto_id;
-    
-    IF NOT FOUND THEN
-        RAISE EXCEPTION 'Producto con id % no encontrado.', p_producto_id;
-    END IF;        
+      
     DELETE FROM "Management".productos WHERE id_producto = p_producto_id;    
     RAISE NOTICE 'Producto con id % eliminado exitosamente.', p_producto_id;
 EXCEPTION
