@@ -24,12 +24,25 @@ def read_provider(id=None):
 @provider_bp.route('/providers_create', methods=['POST'])  
 def create_provider():
     data = request.get_json()
-    try:      
+    try:
+        if not isinstance(data['nit_proveedor'], int):
+            raise ValueError("El NIT del proveedor debe ser un número entero")      
         result = execute_procedure_read('sp_create_proveedor', (
-            data['nit_proveedor'], data['nombre'], data['razon'], data['telefono'], data['direccion'], data['correo_electronico']))
+            data['nit_proveedor'],
+            data['nombre'],
+            data['razon'],
+            data['telefono'],
+            data['direccion'],
+            data['correo_electronico']
+        ))
         return jsonify({'message': result}), 200
-    except Exception as e:
+    except KeyError as e:
+        return jsonify({"error": f"Falta el campo requerido: {str(e)}"}), 400
+    except ValueError as e:
         return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": f"Error al procesar la solicitud: {str(e)}"}), 400
+
 
 
 @cross_origin

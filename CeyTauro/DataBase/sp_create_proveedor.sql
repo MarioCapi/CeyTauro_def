@@ -1,24 +1,42 @@
 -- Procedimiento para crear un nuevo proveedor
 
-CREATE OR REPLACE PROCEDURE "management".sp_create_proveedor(IN _nit_proveedor BIGINT, IN _nombre_empresa VARCHAR(255), IN _razon_social VARCHAR(255), IN _telefono_contacto VARCHAR(50), IN _direccion VARCHAR(255), IN _correo_electronico VARCHAR(255), OUT p_resultado JSON) LANGUAGE plpgsql AS $$
+CREATE OR REPLACE PROCEDURE "management".sp_create_proveedor(
+    IN _nit_proveedor BIGINT,
+    IN _nombre_contacto VARCHAR(255),
+    IN _razon_social VARCHAR(255),
+    IN _telefono_contacto VARCHAR(50),
+    IN _direccion VARCHAR(255),
+    IN _correo_electronico VARCHAR(255),
+    OUT p_resultado JSON
+)
+LANGUAGE plpgsql
+AS $$
 BEGIN
+    -- Intentar insertar el proveedor
     INSERT INTO "management".proveedores (
         nit_proveedor, nombre_contacto, razon_social, telefono_contacto, direccion, correo_electronico
     ) VALUES (
-        _nit_proveedor, _nombre_empresa, _razon_social, _telefono_contacto, _direccion, _correo_electronico
+        _nit_proveedor, _nombre_contacto, _razon_social, _telefono_contacto, _direccion, _correo_electronico
+    );
+
+    -- Asignar resultado exitoso
+    p_resultado := json_build_object(
+        'status', 'success',
+        'message', 'Proveedor creado exitosamente',
+        'nit_proveedor', _nit_proveedor
     );
 
 EXCEPTION
     WHEN OTHERS THEN
-        -- Control de error genérico
+        -- Manejo de errores
         p_resultado := json_build_object(
             'status', 'error',
-            'message', 'Ocurrió un error al crear los proveedores',
+            'message', 'Ocurrió un error al crear el proveedor',
             'error_detail', SQLERRM
         );
-
 END;
 $$;
+
 
 -- Procedimiento para leer todos los proveedores o uno específico por NIT "Probado en DB"
 

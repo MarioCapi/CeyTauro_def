@@ -58,28 +58,48 @@ async function updateProvider(provider) {
 // Llamada a la API para crear proveedores
 async function createProvider(provider) {
     try {
+        // Validar los datos antes de enviarlos
+        if (!provider.nit_proveedor || typeof provider.nit_proveedor !== 'number') {
+            throw new Error('El campo nit_proveedor es obligatorio y debe ser un número.');
+        }
+        if (!provider.nombre || typeof provider.nombre !== 'string') {
+            throw new Error('El campo nombre es obligatorio y debe ser una cadena de texto.');
+        }
+        if (!provider.razon || typeof provider.razon !== 'string') {
+            throw new Error('El campo razon es obligatorio y debe ser una cadena de texto.');
+        }
+
+        // Enviar la solicitud al backend
         const response = await fetch(API_URL_Create, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(provider),  // Enviamos un solo objeto, no una lista
+            body: JSON.stringify(provider),
         });
-        if (response.ok) {
-            const result = await response.json();
-            if (result.message) {
-                alert(result.message.message);
-            } else {
-                return result;
-            }
+
+        // Manejar errores de respuesta HTTP
+        if (!response.ok) {
+            const errorResponse = await response.json();
+            throw new Error(errorResponse.error || `Error en la solicitud: ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        // Validar respuesta del backend
+        if (result.message && result.message.status === 'success') {
+            alert(result.message.message);
+            return result;
         } else {
-            showError('Error al crear el proveedor');
+            throw new Error(result.error || 'No se pudo crear el proveedor.');
         }
     } catch (error) {
-        console.error('Error en la solicitud de creación:', error);
-        showError('Error en la solicitud de creación');
+        console.error('Error en la solicitud de creación:', error.message);
+        alert(`Error al crear el proveedor: ${error.message}`);
     }
 }
+
+
 
 
 async function deleteProvider(nit_proveedor) {
@@ -178,16 +198,36 @@ function renderPagination(filteredProviders = providers) {
 document.getElementById('form').addEventListener('submit', async function (e) {
     e.preventDefault();
 
+    // Captura los valores del formulario
     const idProveedor = document.getElementById('codeproveedor').value;
-    const nombre = document.getElementById('providerName').value;
-    const razon = document.getElementById('providerRazon').value;
-    const nit = document.getElementById('ProviderNit_CC').value;
-    const tel = document.getElementById('ProviderTel').value;
-    const email = document.getElementById('providerEmail').value;
-    const direccion = document.getElementById('providerAddress').value;
+    const nombre = document.getElementById('providerName').value.trim();
+    const razon = document.getElementById('providerRazon').value.trim();
+    const nit = parseInt(document.getElementById('ProviderNit_CC').value, 10); // Convertir a número
+    const tel = document.getElementById('ProviderTel').value.trim();
+    const email = document.getElementById('providerEmail').value.trim();
+    const direccion = document.getElementById('providerAddress').value.trim();
 
-    const provider = { nit: nit, nombre: nombre, razon: razon, tel: tel, email: email, direccion: direccion };
+    // Validar los datos antes de enviarlos
+    if (isNaN(nit)) {
+        alert('El NIT debe ser un número válido.');
+        return;
+    }
+    if (!nombre || !razon || !tel) {
+        alert('Por favor completa todos los campos obligatorios.');
+        return;
+    }
 
+    // Crear objeto provider con claves que coincidan con el backend
+    const provider = {
+        nit_proveedor: nit,
+        nombre: nombre,
+        razon: razon,
+        telefono: tel,
+        correo_electronico: email,
+        direccion: direccion
+    };
+
+    // Lógica para crear o actualizar
     if (idProveedor) {
         // Actualizar proveedor
         const updatedProvider = await updateProvider(provider);
@@ -201,11 +241,13 @@ document.getElementById('form').addEventListener('submit', async function (e) {
         if (newProvider) providers.push(newProvider);
     }
 
+    // Resetear el formulario y actualizar la lista
     this.reset();
     document.getElementById('codeproveedor').value = '';
     document.getElementById('submitButton').textContent = 'Crear Proveedor';
     initializeApp();
 });
+
 
 
 

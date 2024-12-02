@@ -18,15 +18,15 @@
             <h2>Agregar/Editar Proveedor</h2>
             <form id="form">
                 <input type="hidden" id="codeproveedor">
-                <input type="text" id="providerName" placeholder="Nombre contacto" required>
-                <input type="text" id="providerRazon" placeholder="Razon Social" required>
-                <input type="number" id="ProviderNit_CC" placeholder="Nit/CC" required>
-                <input type="text" id="ProviderTel" placeholder="Telefono" required>
-                <input type="text" id="providerEmail" placeholder="Correo electronico">
-                <input type="text" id="providerAddress" placeholder="direccion">
-                
-                <button type="submit">Guardar</button>
+                <input type="text" id="providerName" name="nombre" placeholder="Nombre contacto" required>
+                <input type="text" id="providerRazon" name="razon" placeholder="Razon Social" required>
+                <input type="number" id="ProviderNit_CC" name="nit_proveedor" placeholder="Nit/CC" required>
+                <input type="text" id="ProviderTel" name="telefono" placeholder="Telefono" required>
+                <input type="email" id="providerEmail" name="correo_electronico" placeholder="Correo electronico">
+                <input type="text" id="providerAddress" name="direccion" placeholder="direccion">
+                <button type="submit" id="submitButton">Guardar</button>
             </form>
+            
         </section>
 
         <section id="productList">
