@@ -1,5 +1,5 @@
 const API_URL_Update = 'http://127.0.0.1:5000/api/products/api/products_update';
-const API_URL_Read = 'http://127.0.0.1:5000/api/products/api/products_read/999999999';
+const API_URL_Read = 'http://127.0.0.1:5000/api/products/api/products_read';
 const API_URL_Create  = 'http://127.0.0.1:5000/api/products/api/products_create';
 const API_URL_Delete  = 'http://127.0.0.1:5000/api/products/api/products_delete';
 
@@ -90,13 +90,15 @@ function renderProducts(filteredProducts = products) {
     pageProducts.forEach(product => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td>${product.codeproducto}</td>
+            <td>${product.id_producto}</td>
+            <td>${product.codeProducto}</td>
             <td>${product.nombre_producto}</td>
+            <td>${product.descripcion}</td>
             <td>${product.precio_unitario}</td>
-            <td>${product.unidad_medida}</td>
+            <td>${product.unidad_de_medida}</td>            
             <td>
-                <button onclick="editProduct(${product.codeproducto})">Editar</button>
-                <button onclick="deleteProduct(${product.codeproducto})">Eliminar</button>
+                <button onclick="editProduct('${product.codeProducto}')">Editar</button>
+                <button onclick="deleteProduct('${product.codeProducto}')">Eliminar</button>
             </td>
         `;
         tbody.appendChild(tr);
@@ -125,45 +127,46 @@ function renderPagination(filteredProducts = products) {
 
 document.getElementById('form').addEventListener('submit', async function(e) {
     e.preventDefault();
-    const id = document.getElementById('codeproducto').value;
-    const nombre = document.getElementById('productName').value;
-    const precio = document.getElementById('productPrice').value;
-    const unidad = document.getElementById('productUnity').value;
-    const product = { id, nombre, unidad, precio };
-    
-    if (id) {  
+    const id = document.getElementById('codeProducto').value;
+    const nombre_producto = document.getElementById('productName').value;
+    const precio_unitario = document.getElementById('productPrice').value;
+    const unidad_de_medida = document.getElementById('productUnity').value;
+    const descripcion = document.getElementById('productDesc').value;
+    let codeProducto = id
+    const product = { codeProducto, nombre_producto, unidad_de_medida, precio_unitario,descripcion };
+    //const product = { codeProducto: id, nombre_producto, unidad_de_medida, precio_unitario, descripcion };
+
+    const existingProductIndex = products.findIndex(p => p.codeProducto === id);
+    if (existingProductIndex !== -1) {
         const updatedProduct = await updateProduct(product);
-        if(updateProduct){
-            const index = products.findIndex(p => p.codeproducto == id);
-            products[index] = { id, nombre, unidad, precio };
+        if (updatedProduct) {
+            products[existingProductIndex] = { ...product };
         }
-    } else {  
-        // Crear producto
-        const product = { nombre, unidad, precio };
+    } else {        
         const newProduct = await createProduct(product);
         if (newProduct) {
             products.push(newProduct);
         }
-    }
-    renderProducts();
-    renderPagination();
+    }    
     this.reset();
     document.getElementById('codeproducto').value = '';
     initializeApp();
 });
 
 function editProduct(id) {
-    const product = products.find(p => p.codeproducto == id);    
-    document.getElementById('codeproducto').value = product.codeproducto;
+    const product = products.find(p => p.codeProducto == id);    
     document.getElementById('productName').value = product.nombre_producto;
+    document.getElementById('codeProducto').value = product.codeProducto;
     document.getElementById('productPrice').value = product.precio_unitario;
-    document.getElementById('productUnity').value = product.unidad_medida;
+    document.getElementById('productUnity').value = product.unidad_de_medida;
+    document.getElementById('productDesc').value = product.descripcion;
 }
 
 function deleteProduct(id) {    
     if (confirm('¿Estás seguro de que deseas eliminar este producto?')) {        
-        products = products.filter(p => p.codeproducto != id);        
-        axios.delete(`${API_URL_Delete}/${id}`)
+        products = products.filter(p => p.codeProducto != id);                
+        //axios.delete(`${API_URL_Delete}/${id}`)
+        axios.delete(`${API_URL_Delete}/${encodeURIComponent(id)}`)
             .then(response => {
                 console.log('Producto Eliminado:', response.data);
                 alert('Producto eliminado exitosamente.');

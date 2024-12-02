@@ -17,11 +17,11 @@
         <section id="productForm">
             <h2>Agregar/Editar Producto</h2>
             <form id="form">
-                <input type="hidden" id="codeproducto">
+                <input type="text" id="codeProducto">                
                 <input type="text" id="productName" placeholder="Nombre del producto" required>
-                <input type="number" id="productPrice" placeholder="Precio" required>
-                <input type="text" id="productUnity" placeholder="Unidad" required>
-                
+                <input type="text" id="productDesc" placeholder="Descripcion producto" required>
+                <input type="number" id="productPrice" placeholder="Precio" required>                
+                <input type="text" id="productUnity" placeholder="Unidad" required>                
                 <button type="submit">Guardar</button>
             </form>
         </section>
@@ -31,8 +31,10 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Id</th>
+                        <th>id_producto</th>
+                        <th>codigo_producto</th>
                         <th>Nombre</th>
+                        <th>Descripcion</th>
                         <th>Precio</th>
                         <th>Unidad</th>
                         <th>Acciones</th>
