@@ -24,19 +24,18 @@ def read_usuario(id):
 @usuarios_bp.route('/api/users_create', methods=['POST'])
 def create_usuario():
     data = request.json
-    try:
-        # Validar los datos recibidos
+    try:        
         required_fields = ['username', 'password', 'email']
         for field in required_fields:
             if field not in data or not data[field]:
                 return jsonify({"error": f"Campo '{field}' es obligatorio"}), 400
-
-        # Cifrar la contraseña
         salt = bcrypt.gensalt()
         hashed_password = bcrypt.hashpw(data['password'].encode('utf-8'), salt).decode('utf-8')
 
-        # Llamar al procedimiento almacenado
-        execute_procedure('sp_create_usuario', (data['username'], hashed_password, data['email']))
+        execute_procedure('sp_create_usuario', 
+                        (data['username'], 
+                        hashed_password, 
+                        data['email']))
         return jsonify({'message': 'Usuario creado exitosamente'})
     except Exception as e:
         return jsonify({"error": f"Error al crear usuario: {str(e)}"}), 400
@@ -52,13 +51,15 @@ def update_usuario():
             if field not in data or not data[field]:
                 return jsonify({"error": f"Campo '{field}' es obligatorio"}), 400
 
+        salt = bcrypt.gensalt()
+        hashed_password = bcrypt.hashpw(data['password'].encode('utf-8'), salt).decode('utf-8')
         # Ejecutar procedimiento almacenado
         execute_procedure(
             'sp_update_usuario',
             (
                 int(data['id']),
                 str(data['username']),
-                str(data['password']),
+                hashed_password,
                 str(data['email']),
             )
         )

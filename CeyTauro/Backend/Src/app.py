@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
-#from waitress import serve 
+from waitress import serve 
 
 
 from blueprints.usuarios import usuarios_bp
@@ -21,8 +21,8 @@ app.register_blueprint(client_bp, url_prefix='/api/client')
 app.register_blueprint(ventas_bp, url_prefix='/api/ventas')
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+#if __name__ == '__main__':
+#    app.run(debug=True)
 
-##if __name__ == '__main__':
- #   serve(app, host='0.0.0.0', port=5000)    
+if __name__ == '__main__':
+   serve(app, host='0.0.0.0', port=5000)    

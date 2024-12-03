@@ -9,7 +9,6 @@ let providers = [];
 const itemsPerPage = 20;
 let currentPage = 1;
 
-// Llamada a la API para obtener proveedores
 async function fetchProviders() {
     try {
         const response = await fetch(API_URL_Read);
@@ -216,20 +215,16 @@ document.getElementById('form').addEventListener('submit', async function (e) {
         alert('Por favor completa todos los campos obligatorios.');
         return;
     }
-
-    // Crear objeto provider con claves que coincidan con el backend
     const provider = {
-        nit_proveedor: nit,
+        nit: nit,
         nombre: nombre,
         razon: razon,
-        telefono: tel,
-        correo_electronico: email,
+        tel: tel,
+        email: email,
         direccion: direccion
     };
 
-    // Lógica para crear o actualizar
-    if (idProveedor) {
-        // Actualizar proveedor
+    if (idProveedor) {        
         const updatedProvider = await updateProvider(provider);
         if (updatedProvider) {
             const index = providers.findIndex(p => p.id_proveedor == idProveedor);
@@ -240,8 +235,6 @@ document.getElementById('form').addEventListener('submit', async function (e) {
         const newProvider = await createProvider(provider);
         if (newProvider) providers.push(newProvider);
     }
-
-    // Resetear el formulario y actualizar la lista
     this.reset();
     document.getElementById('codeproveedor').value = '';
     document.getElementById('submitButton').textContent = 'Crear Proveedor';
